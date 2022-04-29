@@ -1,4 +1,7 @@
 import axios from "../axios"
-export  const numberProcessing=()=>{
-    axios.get("healthcheck/")
+export interface INumberProcess {
+    input: string
+}
+export const numberProcessing = (data: INumberProcess) => {
+  return  axios.post("numberprocess",data)
 }

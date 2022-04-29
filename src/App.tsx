@@ -1,34 +1,63 @@
 import './App.css'
-import React, { useState, useEffect } from 'react'
-import {numberProcessing} from "./apis/NumberProcessing"
+import { useState } from 'react'
+import { numberProcessing } from "./apis/NumberProcessing"
 function App() {
-  const [value, setValue] = useState('abc')
+  //input value
+  const [value, setValue] = useState('1,3,4,5,6,7,12,15,56,78,99,79,24,11,68,75')
+  //mode input|reset
   const [isInputMode, setInputMode] = useState(true)
-  const [errorMessages, setErrorMessages]= useState([''])
+  //error messages
+  const [errorMessages, setErrorMessages] = useState<string[]>([])
+  //result
+  const [result, setResult] = useState<number[]>([])
   // handle input change
-  const handleInputChange = (event:any) => {
+  const handleInputChange = (event: any) => {
     setValue(event.target.value)
   }
-  const handleClick = () => {
-    setInputMode(!isInputMode)
-    validation(value)
-    numberProcessing()
+  //click button
+  const handleClick = async () => {
+    //case input
+    if (isInputMode) {
+      //check validation
+      if (validation(value)) {
+        try {
+          //call api
+          let response = await numberProcessing({ input: value })
+          //set result
+          setResult(response.data.data)
+          //change mode
+          setInputMode(!isInputMode)
+        }
+        catch (err: any) {
+          //set message errors
+          if (err.response.data.errors?.length) {
+            setErrorMessages(err.response.data.errors)
+          }
+        }
+      }
+    }
+    //case reset
+    else {
+      setInputMode(!isInputMode)
+    }
   }
-  useEffect(() => {
-    console.log(errorMessages)
-  }, [errorMessages]) // Only re-subscribe if props.friend.id changes
-
-  const validation = (input:string) => {
-    if (!input.length) setErrorMessages(['Input is Required'])
+  //check validation
+  const validation = (input: string) => {
+    let errorMessages = []
+    //check null|empty
+    if (!input.length) errorMessages.push('Input is Required')
+    //check regex
     let arrayRegex = /[0-9]+(,[0-9]+)*$/g
-    if (!arrayRegex.test(input)) setErrorMessages(['Regex error'])
-    else setErrorMessages([])
+    if (!arrayRegex.test(input)) errorMessages.push('Value not match array format')
+    setErrorMessages(errorMessages)
+    return !errorMessages.length
   }
   // render view
   return (
     <div className='App'>
       <div className='container'>
         <div className='form'>
+          {/* input item */}
           <div className='form-item'>
             <label className='label'>Text</label>
             <div className='input-content'>
@@ -47,12 +76,14 @@ function App() {
               <span className='text-danger'>{errorMessages[0]}</span>
             )}
           </div>
+          {/* result */}
           {!isInputMode && (
             <div className='form-item'>
               <label className='label'>Result</label>
-              <div>{'result'}</div>
+              <div className="result">{result.join('-')}</div>
             </div>
           )}
+          {/* button submit|reset */}
           <button
             onClick={handleClick}
             type='button'
