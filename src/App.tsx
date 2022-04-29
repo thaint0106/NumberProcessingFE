@@ -47,7 +47,7 @@ function App() {
     //check null|empty
     if (!input.length) errorMessages.push('Input is Required')
     //check regex
-    let arrayRegex = /[0-9]+(,[0-9]+)*$/g
+    let arrayRegex = /^-?[0-9]+(,-?[0-9]+)*$/g
     if (!arrayRegex.test(input)) errorMessages.push('Value not match array format')
     setErrorMessages(errorMessages)
     return !errorMessages.length
@@ -80,7 +80,7 @@ function App() {
           {!isInputMode && (
             <div className='form-item'>
               <label className='label'>Result</label>
-              <div className="result">{result.join('-')}</div>
+              <div className="result">{result.join(' ; ')}</div>
             </div>
           )}
           {/* button submit|reset */}
